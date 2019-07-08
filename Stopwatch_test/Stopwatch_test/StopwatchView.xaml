@@ -1,0 +1,70 @@
+﻿<UserControl x:Class="Stopwatch_test.StopwatchView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Stopwatch_test"
+             mc:Ignorable="d" Background="LightGray"
+             d:DesignHeight="400" d:DesignWidth="700">
+	<UserControl.DataContext>
+		<local:StopwatchViewModel/>
+	</UserControl.DataContext>
+	<UserControl.Resources>
+		<Style x:Key="BtnStyle" TargetType="Button">
+			<Setter Property="HorizontalAlignment" Value="Center"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="Width" Value="75"/>
+			<Setter Property="Height" Value="75"/>
+			<Setter Property="FontSize" Value="22"/>
+		</Style>
+	</UserControl.Resources>
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition/>
+			<ColumnDefinition Width="Auto"/>
+		</Grid.ColumnDefinitions>
+
+		<Grid Margin="15">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="2*"/>
+				<RowDefinition Height="1*"/>
+			</Grid.RowDefinitions>
+			
+			<Viewbox>
+				<TextBlock Background="Transparent" Text="{Binding Stopwatch.Time,Mode=OneWay,
+							StringFormat={}{0:hh\\ч\\ mm\\м\\ ss\\.ff\\с}}"/>
+			</Viewbox>
+		
+			<Grid Row="1">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition/>
+					<ColumnDefinition/>
+					<ColumnDefinition/>
+					<ColumnDefinition/>
+				</Grid.ColumnDefinitions>
+
+				<Button Content="Старт" Command="{Binding StartCommand}" Style="{StaticResource BtnStyle}" IsEnabled="{Binding CanStart}"/>
+				<Button Grid.Column="1" Content="Пауза" Command="{Binding PauseCommand}" Style="{StaticResource BtnStyle}" IsEnabled="{Binding CanPause}"/>
+				<Button Grid.Column="2" Content="Сброс" Command="{Binding ResetCommand}" Style="{StaticResource BtnStyle}" IsEnabled="{Binding CanReset}"/>
+				<Button Grid.Column="3" Content="Круг" Command="{Binding RoundCommand}" Style="{StaticResource BtnStyle}" IsEnabled="{Binding CanRound}"/>
+
+			</Grid>
+
+		</Grid>
+
+		<Border Grid.Column="1" BorderBrush="DimGray" BorderThickness="2,0,0,0">
+			<DockPanel MinWidth="150">
+				<Label Content="Круги" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
+				<ListView ItemsSource="{Binding Stopwatch.Rounds}">
+					<ListView.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Background="Transparent" Text="{Binding Mode=OneWay,
+										StringFormat={}{0:hh\\ч\\ mm\\м\\ ss\\.ff\\с}}"/>
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+			</DockPanel>
+		</Border>
+
+	</Grid>
+</UserControl>
