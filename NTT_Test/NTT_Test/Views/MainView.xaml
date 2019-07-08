@@ -1,0 +1,156 @@
+﻿<UserControl x:Class="NTT_Test.Views.MainView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:logic="clr-namespace:NTT_Test.Logics"
+			 xmlns:helper="clr-namespace:NTT_Test.Helpers"
+			 xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:viewModels="clr-namespace:NTT_Test.ViewModels"
+             Background="DarkCyan"
+             mc:Ignorable="d" d:DesignHeight="600" d:DesignWidth="800">
+	<UserControl.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="pack://application:,,,/Helpers/Styles.xaml"/>
+			</ResourceDictionary.MergedDictionaries>
+			<Style x:Key="ReadStyle" TargetType="FrameworkElement">
+				<Style.Triggers>
+					<DataTrigger Binding="{Binding File}" Value="{x:Null}">
+						<Setter Property="Visibility" Value="Collapsed"/>
+					</DataTrigger>
+				</Style.Triggers>
+			</Style>
+			<ObjectDataProvider x:Key="DirectionEnum" ObjectType="sys:Enum" MethodName="GetValues">
+				<ObjectDataProvider.MethodParameters>
+					<x:Type TypeName="logic:Direction"/>
+				</ObjectDataProvider.MethodParameters>
+			</ObjectDataProvider>
+			<helper:DateConverter x:Key="DateConverter"/>
+		</ResourceDictionary>
+	</UserControl.Resources>
+	<UserControl.DataContext>
+		<viewModels:MainViewModel/>
+	</UserControl.DataContext>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<StackPanel>
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+				<Button Content="Open file" Command="{Binding OpenFileCommand}" IsEnabled="{Binding IsWaiting}" Padding="20,10" Margin="20,10"/>
+				<Button Content="Stop" Command="{Binding StopReadingCommand}" IsEnabled="{Binding IsReading}" Padding="20,10" Margin="20,10"/>
+			</StackPanel>
+			<Label Content="{Binding File}" ContentStringFormat="Load file: {0:0}" FontSize="16" Style="{StaticResource ReadStyle}"/>
+			<ProgressBar Minimum="0" Maximum="{Binding TotalLines}" Value="{Binding CurrentLine}" Height="25" Style="{StaticResource ReadStyle}"/>
+		</StackPanel>
+		<TabControl Grid.Row="1">
+			<TabItem Header="Table">
+				<DataGrid ItemsSource="{Binding DataCollection}" IsEnabled="{Binding IsWaiting}" EnableRowVirtualization="True"
+				          AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
+					<DataGrid.Columns>
+						<DataGridTextColumn Header="Date" Binding="{Binding Date,StringFormat=dd.MM.yyyy}"/>
+						<DataGridTextColumn Header="Object A" Binding="{Binding ObjectA.Object}"/>
+						<DataGridTextColumn Header="Type A" Binding="{Binding ObjectA.Type}"/>
+						<DataGridTextColumn Header="Object B" Binding="{Binding ObjectB.Object}"/>
+						<DataGridTextColumn Header="Type B" Binding="{Binding ObjectB.Type}"/>
+						<DataGridTextColumn Header="Direction" Binding="{Binding Direction}"/>
+						<DataGridTextColumn Header="Color" Binding="{Binding Color}"/>
+						<DataGridTextColumn Header="Intensity" Binding="{Binding Intensity}"/>
+						<DataGridTextColumn Header="LatitudeA" Binding="{Binding ObjectA.Latitude}"/>
+						<DataGridTextColumn Header="LongitudeA" Binding="{Binding ObjectA.Longitude}"/>
+						<DataGridTextColumn Header="LatitudeB" Binding="{Binding ObjectB.Latitude}"/>
+						<DataGridTextColumn Header="LongitudeB" Binding="{Binding ObjectB.Longitude}"/>
+					</DataGrid.Columns>
+				</DataGrid>
+			</TabItem>
+			<TabItem Header="BlockList">
+				<ListView ItemsSource="{Binding DataCollection}" ItemContainerStyle="{StaticResource LinkStyle}" IsEnabled="{Binding IsWaiting}"
+				          VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling"/>
+			</TabItem>
+		</TabControl>
+
+
+		<Expander Grid.Row="2" Header="Filter" ExpandDirection="Down">
+			<Grid MinHeight="150" Background="Gray" Margin="10">
+				<Grid.RowDefinitions>
+					<RowDefinition/>
+					<RowDefinition/>
+					<RowDefinition/>
+					<RowDefinition/>
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition/>
+					<ColumnDefinition/>
+					<ColumnDefinition/>
+				</Grid.ColumnDefinitions>
+
+				<GroupBox Grid.RowSpan="3" Header="Link filters" Margin="0,-5"/>
+				<StackPanel Orientation="Horizontal">
+					<CheckBox Content="Date" VerticalAlignment="Center" Margin="10" IsChecked="{Binding Filter.DateFilter}"/>
+					<TextBox Text="{Binding Filter.FromDate,StringFormat=dd.MM.yyyy,Converter={StaticResource DateConverter}, ConverterCulture=ru-RU}" Width="75" VerticalAlignment="Center" Margin="5,0"/>
+					<TextBox Text="{Binding Filter.ToDate,StringFormat=dd.MM.yyyy,Converter={StaticResource DateConverter}, ConverterCulture=ru-RU}" Width="75" VerticalAlignment="Center" Margin="5,0"/>
+				</StackPanel>
+
+				<StackPanel Grid.Row="1" Orientation="Horizontal">
+					<CheckBox  Content="Direction" VerticalAlignment="Center" Margin="10" IsChecked="{Binding Filter.DirectionFilter}"/>
+					<ComboBox ItemsSource="{Binding Source={StaticResource DirectionEnum}}" SelectedItem="{Binding Filter.Direction}"
+					          VerticalAlignment="Center" Width="120"/>
+				</StackPanel>
+
+				<StackPanel Grid.Row="2" Orientation="Horizontal">
+					<CheckBox Content="Intensity" VerticalAlignment="Center" Margin="10" IsChecked="{Binding Filter.IntensityFilter}"/>
+					<TextBox Text="{Binding Filter.Intensity}" Width="75" VerticalAlignment="Center" Margin="5,0"/>
+				</StackPanel>
+
+
+				<GroupBox Grid.RowSpan="3" Grid.Column="1" Header="Object A filters" Margin="0,-5"/>
+				<StackPanel Grid.Column="1" Orientation="Horizontal">
+					<CheckBox Content="ObjectA" VerticalAlignment="Center" Margin="10" IsChecked="{Binding Filter.ObjectAFilter}"/>
+					<TextBox Text="{Binding Filter.ObjectA}" Width="25" VerticalAlignment="Center" Margin="5,0"/>
+					<CheckBox Content="TypeA" VerticalAlignment="Center" Margin="10" IsChecked="{Binding Filter.TypeAFilter}"/>
+					<TextBox Text="{Binding Filter.TypeA}" Width="50" VerticalAlignment="Center" Margin="5,0"/>
+				</StackPanel>
+
+				<StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+					<CheckBox Content="LatitudeA" VerticalAlignment="Center" Margin="10" IsChecked="{Binding Filter.LastitudeAFilter}"/>
+					<TextBox Text="{Binding Filter.FromLatitudeA}" Width="70" VerticalAlignment="Center" Margin="5,0"/>
+					<TextBox Text="{Binding Filter.ToLatitudeA}" Width="70" VerticalAlignment="Center" Margin="5,0"/>
+				</StackPanel>
+
+				<StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+					<CheckBox Content="LongitudeA" VerticalAlignment="Center" Margin="10" IsChecked="{Binding Filter.LongitudeAFilter}"/>
+					<TextBox Text="{Binding Filter.FromLongitudeA}" Width="70" VerticalAlignment="Center" Margin="5,0"/>
+					<TextBox Text="{Binding Filter.ToLongitudeA}" Width="70" VerticalAlignment="Center" Margin="5,0"/>
+				</StackPanel>
+
+				
+				<GroupBox Grid.RowSpan="3" Grid.Column="2" Header="Object B filters" Margin="0,-5"/>
+
+				<StackPanel Grid.Column="2" Orientation="Horizontal">
+					<CheckBox Content="ObjectB" VerticalAlignment="Center" Margin="10" IsChecked="{Binding Filter.ObjectBFilter}"/>
+					<TextBox Text="{Binding Filter.ObjectB}" Width="25" VerticalAlignment="Center" Margin="5,0"/>
+					<CheckBox Content="TypeB" VerticalAlignment="Center" Margin="10" IsChecked="{Binding Filter.TypeBFilter}"/>
+					<TextBox Text="{Binding Filter.TypeB}" Width="50" VerticalAlignment="Center" Margin="5,0"/>
+				</StackPanel>
+
+				<StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal">
+					<CheckBox Content="LastitudeB" VerticalAlignment="Center" Margin="10" IsChecked="{Binding Filter.LastitudeBFilter}"/>
+					<TextBox Text="{Binding Filter.FromLatitudeB}" Width="70" VerticalAlignment="Center" Margin="5,0"/>
+					<TextBox Text="{Binding Filter.ToLatitudeB}" Width="70" VerticalAlignment="Center" Margin="5,0"/>
+				</StackPanel>
+
+				<StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal">
+					<CheckBox Content="LongitudeB" VerticalAlignment="Center" Margin="10" IsChecked="{Binding Filter.LongitudeBFilter}"/>
+					<TextBox Text="{Binding Filter.FromLongitudeB}" Width="70" VerticalAlignment="Center" Margin="5,0"/>
+					<TextBox Text="{Binding Filter.ToLongitudeB}" Width="70" VerticalAlignment="Center" Margin="5,0"/>
+				</StackPanel>
+
+				<Button Grid.Row="3" Grid.Column="1" Content="Apply" Command="{Binding ApplyFilterCommand}" Margin="5"/>
+
+			</Grid>
+		</Expander>
+	</Grid>
+</UserControl>
