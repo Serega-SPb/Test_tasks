@@ -1,0 +1,53 @@
+﻿<TabControl  x:Class="BrowserTabcontrol.BrowserTabControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" Name="control"
+             d:DesignHeight="300" d:DesignWidth="300">
+
+	<TabControl.Template>
+		<ControlTemplate TargetType="TabControl">
+			<DockPanel>
+				<StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+					<Button Width="25" Height="25" Margin="5" Click="CreateTabClick">
+						<Viewbox Width="21" Height="21">
+							<Path StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Stroke="Black" Data="M 6,1,6,11 M 1,6,11,6"/>
+						</Viewbox>
+					</Button>
+					<ScrollViewer HorizontalScrollBarVisibility="Hidden"  VerticalScrollBarVisibility="Disabled">
+						<TabPanel x:Name="HeaderPanel" Panel.ZIndex ="1" Margin="2,2,2,0"
+					          KeyboardNavigation.TabIndex="1" IsItemsHost="true"/>
+					</ScrollViewer>
+				</StackPanel>
+				<ContentPresenter x:Name="PART_SelectedContentHost" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+				                  Margin="{TemplateBinding Padding}" ContentSource="SelectedContent"/>
+			</DockPanel>
+		</ControlTemplate>
+	</TabControl.Template>
+
+	<TabControl.ItemContainerStyle>
+		<Style TargetType="{x:Type TabItem}">
+			<Setter Property="AllowDrop" Value="True"/>
+			<Setter Property="HeaderTemplate">
+				<Setter.Value>
+					<ItemContainerTemplate>
+						<DockPanel MinWidth="{Binding Source={x:Reference control}, Path=MinHeaderWidth}"
+						           MaxWidth="{Binding Source={x:Reference control}, Path=MaxHeaderWidth}" 
+						           Width="{Binding Source={x:Reference control}, Path=HeaderWidth}">
+							<Button DockPanel.Dock="Right" Width="15" Height="15" BorderThickness="0" HorizontalAlignment="Right" Tag="Close">
+								<Viewbox Width="11" Height="11">
+									<Path StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Stroke="Black" Data="M 1,1,11,11 M 11,1,1,11"/>
+								</Viewbox>
+							</Button>
+							<Label Content="{Binding}" HorizontalAlignment="Left"/>
+						</DockPanel>
+					</ItemContainerTemplate>
+				</Setter.Value>
+			</Setter>
+			<Setter Property="VerticalContentAlignment" Value="Stretch"/>
+			<EventSetter Event="PreviewMouseLeftButtonDown" Handler="OnPrevMouseLeftBtnDown"/>
+			<EventSetter Event="Drop" Handler="OnDrop"/>
+		</Style>
+	</TabControl.ItemContainerStyle>
+</TabControl>
