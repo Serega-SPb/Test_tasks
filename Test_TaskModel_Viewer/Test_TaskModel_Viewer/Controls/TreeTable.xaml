@@ -1,0 +1,184 @@
+﻿<UserControl x:Class="Test_TaskModel_Viewer.Controls.TreeTable"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Test_TaskModel_Viewer.Controls"
+             xmlns:cl="clr-namespace:Test_TaskModel_Viewer.Classes"
+             mc:Ignorable="d" Name="Control"
+             d:DesignHeight="450" d:DesignWidth="800">
+
+	<UserControl.Resources>
+
+
+		<Style TargetType="ListBox">
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Margin" Value="0"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate>
+						<ItemsPresenter/>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+			<Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
+			<Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling"/>
+			<Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel"/>
+		</Style>
+
+		<Style TargetType="ListBoxItem">
+			<Setter Property="Margin" Value="5,0,0,0"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate>
+						<ContentControl Content="{Binding }"/>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<Style TargetType="ToggleButton">
+			<Setter Property="Focusable" Value="False"/>
+			<Setter Property="Width" Value="20"/>
+			<Setter Property="Height" Value="20"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type ToggleButton}">
+						<Border Background="Gray" BorderBrush="Black" BorderThickness="1">
+							<Viewbox Name="Box" Height="10" Width="10">
+								<Path x:Name="Path" Stroke="Black" StrokeThickness="2"
+							      StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+							</Viewbox>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsChecked" Value="False">
+								<Setter TargetName="Path" Property="Data"
+								        Value="M 1,5, 9,5 M 5,1, 5,9 "/>
+							</Trigger>
+							<Trigger Property="IsChecked" Value="True">
+								<Setter TargetName="Path" Property="Data"
+								        Value="M 1,5, 9,5 "/>
+							</Trigger>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter TargetName="Box" Property="Width" Value="15"/>
+								<Setter TargetName="Box" Property="Height" Value="15"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<Style TargetType="Expander">
+			<Setter Property="IsExpanded" Value="True"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Expander">
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition Name="HeaderRow"  Height="Auto"/>
+								<RowDefinition Name="ContentRow" Height="0"/>
+							</Grid.RowDefinitions>
+
+							<Border Background="{TemplateBinding Background}" BorderBrush="Black" BorderThickness="1" Margin="0,1.48">
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="20"/>
+										<ColumnDefinition />
+									</Grid.ColumnDefinitions>
+									<ToggleButton Name="tb" IsChecked="{Binding Path=IsExpanded,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}" />
+									<ContentPresenter ContentSource="Header" Grid.Column="1"/>
+								</Grid>
+							</Border>
+
+							<Border Name="Content" Grid.Row="1">
+								<ContentPresenter/>
+							</Border>
+						</Grid>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsExpanded" Value="True">
+								<Setter TargetName="ContentRow" Property="Height"
+								        Value="{Binding ElementName=Content,Path=Height}"/>
+							</Trigger>
+							<DataTrigger Binding="{Binding RelativeSource={RelativeSource TemplatedParent},Path=DataContext.Children.Count}" Value="0">
+								<Setter TargetName="tb" Property="Visibility" Value="Hidden"></Setter>
+							</DataTrigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<DataTemplate DataType="{x:Type cl:ModelRelation}">
+			<Expander Header="{Binding }" Expanded="ExpandedChanged" Collapsed="ExpandedChanged">
+				<Expander.HeaderTemplate>
+					<DataTemplate>
+						<Grid Height="15">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="3*"/>
+								<ColumnDefinition Width="100"/>
+								<ColumnDefinition Width="100"/>
+								<ColumnDefinition Width="30"/>
+							</Grid.ColumnDefinitions>
+
+							<TextBlock Text="{Binding Name}" ToolTip="{Binding Name}"/>
+							<TextBlock Grid.Column="1" Text="{Binding GraphRange.Start, StringFormat={} dd\.MM\.yyyy }"
+							           HorizontalAlignment="Right"/>
+							<TextBlock Grid.Column="2" Text="{Binding GraphRange.End, StringFormat={} dd\.MM\.yyyy}"
+							           HorizontalAlignment="Right"/>
+						</Grid>
+
+					</DataTemplate>
+				</Expander.HeaderTemplate>
+				<ListBox ItemsSource="{Binding Children}"/>
+			</Expander>
+		</DataTemplate>
+
+	</UserControl.Resources>
+
+
+	<Grid>
+		<Grid.Resources>
+			<Style TargetType="Border">
+				<Setter Property="BorderBrush" Value="Black"/>
+				<Setter Property="BorderThickness" Value="1"/>
+				<Setter Property="Margin" Value="0,0"/>
+			</Style>
+			<Style TargetType="TextBlock">
+				<Setter Property="HorizontalAlignment" Value="Center"/>
+				<Setter Property="VerticalAlignment" Value="Center"/>
+			</Style>
+		</Grid.Resources>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="35"/>
+			<RowDefinition/>
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="3*"/>
+			<ColumnDefinition Width="100"/>
+			<ColumnDefinition Width="100"/>
+			<ColumnDefinition Width="0"/>
+		</Grid.ColumnDefinitions>
+
+		<Border>
+			<TextBlock Text="Виды работ"/>
+		</Border>
+		<Border Grid.Column="1" >
+			<TextBlock Text="Начало"/>
+		</Border>
+		<Border Grid.Column="2">
+			<TextBlock  Text="Конец"/>
+		</Border>
+		<Border Grid.Column="3"/>
+
+		<ScrollViewer Grid.Row="1" Grid.ColumnSpan="4" 
+		              x:Name="Scroller"
+		              VerticalScrollBarVisibility="Hidden">
+			<ContentControl Content="{Binding ModelRelation, ElementName=Control}"/>
+		</ScrollViewer>
+	</Grid>
+
+</UserControl>
